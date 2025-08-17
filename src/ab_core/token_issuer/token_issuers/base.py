@@ -3,13 +3,13 @@ from typing import Generator, Generic, TypeVar
 
 from pydantic import BaseModel, Field
 
-from obo_core.auth_client.oauth2.client import OAuth2Client
-from obo_core.auth_client.oauth2.schema.authorize import OAuth2AuthorizeResponse
-from obo_core.auth_client.oauth2.schema.token import OAuth2Token
-from obo_core.auth_flow.oauth2.flow import OAuth2Flow
-from obo_core.auth_flow.oauth2.schema.auth_code_stage import AuthCodeStageInfo
-from obo_core.cache.caches.base import CacheSession
-from obo_core.token_store.oauth2.store import OAuth2TokenStore
+from ab_core.auth_client.oauth2.client import OAuth2Client
+from ab_core.auth_client.oauth2.schema.authorize import OAuth2AuthorizeResponse
+from ab_core.auth_client.oauth2.schema.token import OAuth2Token
+from ab_core.auth_flow.oauth2.flow import OAuth2Flow
+from ab_core.auth_flow.oauth2.schema.auth_code_stage import AuthCodeStageInfo
+from ab_core.cache.caches.base import CacheSession
+from ab_core.token_store.oauth2.store import OAuth2TokenStore
 
 T = TypeVar("T")
 

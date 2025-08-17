@@ -1,14 +1,14 @@
 from typing import Literal, override
 
-from obo_core.auth_client.oauth2.client.pkce import PKCEOAuth2Client
-from obo_core.auth_client.oauth2.schema.authorize import (
+from ab_core.auth_client.oauth2.client.pkce import PKCEOAuth2Client
+from ab_core.auth_client.oauth2.schema.authorize import (
     PKCEAuthorizeResponse,
     PKCEBuildAuthorizeRequest,
 )
-from obo_core.auth_client.oauth2.schema.exchange import PKCEExchangeCodeRequest
-from obo_core.auth_client.oauth2.schema.token import OAuth2Token
-from obo_core.cache.caches.base import CacheSession
-from obo_core.token_issuer.schema.token_issuer_type import TokenIssuerType
+from ab_core.auth_client.oauth2.schema.exchange import PKCEExchangeCodeRequest
+from ab_core.auth_client.oauth2.schema.token import OAuth2Token
+from ab_core.cache.caches.base import CacheSession
+from ab_core.token_issuer.schema.token_issuer_type import TokenIssuerType
 
 from .base import OAuth2TokenIssuerBase
 

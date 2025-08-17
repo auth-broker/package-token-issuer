@@ -1,13 +1,13 @@
 from uuid_extensions import uuid7
 
-from obo_core.auth_client.oauth2.client.pkce import (
+from ab_core.auth_client.oauth2.client.pkce import (
     PKCEOAuth2Client,
 )
-from obo_core.auth_client.oauth2.schema.oidc import OIDCConfig
-from obo_core.auth_flow.oauth2.flow.playwright import (
+from ab_core.auth_client.oauth2.schema.oidc import OIDCConfig
+from ab_core.auth_flow.oauth2.flow.playwright import (
     PlaywrightOAuth2Flow,
 )
-from obo_core.token_issuer.token_issuers.pkce import (
+from ab_core.token_issuer.token_issuers.pkce import (
     PKCEOAuth2TokenIssuer,
 )
 

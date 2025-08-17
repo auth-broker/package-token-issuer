@@ -1,7 +1,7 @@
 from typing import Literal, override
 
-from obo_core.auth_client.oauth2.schema.token import OAuth2Token
-from obo_core.token_issuer.schema.token_issuer_type import (
+from ab_core.auth_client.oauth2.schema.token import OAuth2Token
+from ab_core.token_issuer.schema.token_issuer_type import (
     TokenIssuerType,
 )
 

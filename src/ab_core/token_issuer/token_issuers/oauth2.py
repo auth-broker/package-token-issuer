@@ -1,13 +1,13 @@
 from typing import Literal, override
 
-from obo_core.auth_client.oauth2.schema.authorize import (
+from ab_core.auth_client.oauth2.schema.authorize import (
     OAuth2AuthorizeResponse,
     OAuth2BuildAuthorizeRequest,
 )
-from obo_core.auth_client.oauth2.schema.exchange import OAuth2ExchangeCodeRequest
-from obo_core.auth_client.oauth2.schema.token import OAuth2Token
-from obo_core.cache.caches.base import CacheSession
-from obo_core.token_issuer.schema.token_issuer_type import TokenIssuerType
+from ab_core.auth_client.oauth2.schema.exchange import OAuth2ExchangeCodeRequest
+from ab_core.auth_client.oauth2.schema.token import OAuth2Token
+from ab_core.cache.caches.base import CacheSession
+from ab_core.token_issuer.schema.token_issuer_type import TokenIssuerType
 
 from .base import OAuth2TokenIssuerBase
 
