@@ -33,7 +33,7 @@ version = "0.1.1"
 
 [tool.uv.sources]
 ab-auth-flow  = { git = "https://@github.com/auth-broker/package-auth-flow", tag= "0.1.1" }
-ab-dependency  = { git = "https://@github.com/auth-broker/package-dependency", tag= "0.1.1" }
+ab-dependency  = { git = "https://@github.com/auth-broker/package-dependency", tag= "0.1.2" }
 ab-pkce  = { git = "https://@github.com/auth-broker/package-pkce", tag= "0.1.1" }
 ab-token-store  = { git = "https://@github.com/auth-broker/package-token-store", tag= "0.1.1" }
 ab-test-fixtures  = { git = "https://@github.com/auth-broker/package-test-fixtures", tag= "0.1.1" }
