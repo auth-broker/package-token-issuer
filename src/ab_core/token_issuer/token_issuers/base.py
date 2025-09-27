@@ -9,7 +9,6 @@ from ab_core.auth_client.oauth2.schema.token import OAuth2Token
 from ab_core.auth_flow.oauth2.flow import OAuth2Flow
 from ab_core.auth_flow.oauth2.schema.auth_code_stage import AuthCodeStageInfo
 from ab_core.cache.caches.base import CacheSession
-from ab_core.token_store.oauth2.store import OAuth2TokenStore
 
 T = TypeVar("T")
 
@@ -25,9 +24,6 @@ class TokenIssuerBase(BaseModel, Generic[T], ABC):
 class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
     oauth2_flow: OAuth2Flow
     oauth2_client: OAuth2Client
-    token_store: OAuth2TokenStore | None = Field(
-        default=None,
-    )
 
     identity_provider: str = "Google"
     response_type: str = "code"
@@ -50,8 +46,6 @@ class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
 
     def authenticate(
         self,
-        user_id: str,
-        connection_id: str,
         *,
         cache_session: CacheSession | None = None,
     ) -> Generator[AuthCodeStageInfo | OAuth2Token, None, OAuth2Token]:
@@ -64,27 +58,7 @@ class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
 
         # 3) Exchange for tokens
         tokens = self._exchange_code(code, authorize, cache_session=cache_session)
-        if self.token_store is not None:
-            self.token_store.save(user_id, connection_id, tokens)
 
         # 4) Emit final token
         yield tokens
         return tokens
-
-    def refresh(
-        self, user_id: str, connection_id: str
-    ) -> Generator[AuthCodeStageInfo | OAuth2Token, None, OAuth2Token]:
-        stored = self.token_store.load(user_id, connection_id)
-        if not stored or not stored.refresh_token:
-            tokens = yield from self.authenticate(user_id, connection_id)
-            return tokens
-
-        try:
-            tokens = self.oauth2_client.refresh_token(stored.refresh_token)
-            self.token_store.save(user_id, connection_id, tokens)
-            yield tokens
-            return tokens
-        except Exception:
-            self.token_store.clear(user_id, connection_id)
-            tokens = yield from self.authenticate(user_id, connection_id)
-            return tokens
