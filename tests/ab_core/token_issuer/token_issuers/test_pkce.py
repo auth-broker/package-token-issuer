@@ -25,6 +25,9 @@ def test_wemoney_authenticate(tmp_cache_sync_session):
     )
 
     issuer = PKCEOAuth2TokenIssuer(
+        identity_provider = "Google",
+        response_type = "code",
+        scope = "openid email profile",
         oauth2_client=PKCEOAuth2Client(
             config=wemoney_config,
         ),
