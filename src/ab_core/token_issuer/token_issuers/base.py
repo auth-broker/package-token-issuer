@@ -21,7 +21,7 @@ class TokenIssuerBase(BaseModel, Generic[T], ABC):
         self,
         *,
         cache_session: CacheSession | None = None,
-    ) -> Generator[AuthCodeStageInfo | T, None, T]: ...
+    ) -> Generator[AuthCodeStageInfo | T, None, None]: ...
 
     @abstractmethod
     def refresh(
@@ -29,7 +29,7 @@ class TokenIssuerBase(BaseModel, Generic[T], ABC):
         request: RefreshTokenRequest,
         *,
         cache_session: CacheSession | None = None,
-    ) -> Generator[T, None, T]: ...
+    ) -> Generator[T, None, None]: ...
 
 
 class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
@@ -62,7 +62,7 @@ class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
         self,
         *,
         cache_session: CacheSession | None = None,
-    ) -> Generator[AuthCodeStageInfo | OAuth2Token, None, OAuth2Token]:
+    ) -> Generator[AuthCodeStageInfo | OAuth2Token, None, None]:
         # 1) Build the authorize request via the client
         authorize = self._build_authorize(
             cache_session=cache_session,
@@ -82,7 +82,9 @@ class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
 
         # 4) Emit final token
         yield tokens
-        return tokens
+        # @breaking:    >=0.2.0 no longer includes the return type from the generator.
+        #               this is due to wanting more consistency with the async protocol
+        return None
 
     @override
     def refresh(
@@ -90,7 +92,7 @@ class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
         request: RefreshTokenRequest,
         *,
         cache_session: CacheSession | None = None,
-    ) -> Generator[AuthCodeStageInfo | OAuth2Token, None, OAuth2Token]:
+    ) -> Generator[AuthCodeStageInfo | OAuth2Token, None, None]:
         # for now we just call the refresh token url directly, without channeling it through the auth flow.
         # this should be sufficient, but I'm thinking if they have SSL pinning or any CORS, it might be ncessary
         # to run this request through the auth flow. Then, the impersonation would enable refreshing a token within
@@ -100,4 +102,6 @@ class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
             cache_session=cache_session,
         )
         yield tokens
-        return tokens
+        # @breaking:    >=0.2.0 no longer includes the return type from the generator.
+        #               this is due to wanting more consistency with the async protocol
+        return None
