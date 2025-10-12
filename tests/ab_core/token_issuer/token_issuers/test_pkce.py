@@ -18,9 +18,9 @@ from ab_core.token_issuer.token_issuers.pkce import (
 
 def test_wemoney_authenticate(tmp_cache_sync_session):
     issuer = PKCEOAuth2TokenIssuer(
-        identity_provider = "Google",
-        response_type = "code",
-        scope = "openid email profile",
+        identity_provider="Google",
+        response_type="code",
+        scope="openid email profile",
         oauth2_client=PKCEOAuth2Client(
             config=OIDCConfig(
                 client_id="247ffs2l6um22baifm5o7nhkgh",

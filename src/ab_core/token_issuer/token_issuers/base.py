@@ -1,16 +1,16 @@
 from abc import ABC, abstractmethod
-from collections.abc import Generator
+from collections.abc import AsyncGenerator, Generator
 from typing import Generic, TypeVar, override
 
 from pydantic import BaseModel
 
 from ab_core.auth_client.oauth2.client import OAuth2Client
 from ab_core.auth_client.oauth2.schema.authorize import OAuth2AuthorizeResponse
-from ab_core.auth_client.oauth2.schema.token import OAuth2Token
 from ab_core.auth_client.oauth2.schema.refresh import RefreshTokenRequest
+from ab_core.auth_client.oauth2.schema.token import OAuth2Token
 from ab_core.auth_flow.oauth2.flow import OAuth2Flow
 from ab_core.auth_flow.oauth2.schema.auth_code_stage import AuthCodeStageInfo
-from ab_core.cache.caches.base import CacheSession
+from ab_core.cache.caches.base import CacheAsyncSession, CacheSession
 
 T = TypeVar("T")
 
@@ -23,6 +23,14 @@ class TokenIssuerBase(BaseModel, Generic[T], ABC):
         cache_session: CacheSession | None = None,
     ) -> Generator[AuthCodeStageInfo | T, None, None]: ...
 
+    # NEW: async authenticate
+    @abstractmethod
+    async def authenticate_async(
+        self,
+        *,
+        cache_session: CacheAsyncSession | None = None,
+    ) -> AsyncGenerator[AuthCodeStageInfo | T, None]: ...
+
     @abstractmethod
     def refresh(
         self,
@@ -30,6 +38,15 @@ class TokenIssuerBase(BaseModel, Generic[T], ABC):
         *,
         cache_session: CacheSession | None = None,
     ) -> Generator[T, None, None]: ...
+
+    # NEW: async refresh
+    @abstractmethod
+    async def refresh_async(
+        self,
+        request: RefreshTokenRequest,
+        *,
+        cache_session: CacheAsyncSession | None = None,
+    ) -> AsyncGenerator[T, None]: ...
 
 
 class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
@@ -48,6 +65,14 @@ class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
         cache_session: CacheSession | None = None,
     ) -> OAuth2AuthorizeResponse: ...
 
+    # NEW: async helper to build authorize
+    @abstractmethod
+    async def _build_authorize_async(
+        self,
+        *,
+        cache_session: CacheAsyncSession | None = None,
+    ) -> OAuth2AuthorizeResponse: ...
+
     @abstractmethod
     def _exchange_code(
         self,
@@ -55,6 +80,16 @@ class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
         authorize: OAuth2AuthorizeResponse,
         *,
         cache_session: CacheSession | None = None,
+    ) -> OAuth2Token: ...
+
+    # NEW: async helper to exchange code
+    @abstractmethod
+    async def _exchange_code_async(
+        self,
+        code: str,
+        authorize: OAuth2AuthorizeResponse,
+        *,
+        cache_session: CacheAsyncSession | None = None,
     ) -> OAuth2Token: ...
 
     @override
@@ -86,6 +121,38 @@ class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
         #               this is due to wanting more consistency with the async protocol
         return None
 
+    # NEW: async authenticate flow
+    @override
+    async def authenticate_async(
+        self,
+        *,
+        cache_session: CacheAsyncSession | None = None,
+    ) -> AsyncGenerator[AuthCodeStageInfo | OAuth2Token, None]:
+        # 1) Build the authorize request (async)
+        authorize = await self._build_authorize_async(cache_session=cache_session)
+
+        # 2) Drive the login flow (async)
+        last_stage: AuthCodeStageInfo | None = None
+        async for stage in self.oauth2_flow.get_code_async(str(authorize.url)):
+            last_stage = stage
+            yield stage
+
+        if last_stage is None or not hasattr(last_stage, "auth_code"):
+            raise RuntimeError("OAuth2 flow did not yield an auth code stage")
+
+        code = last_stage.auth_code  # type: ignore[attr-defined]
+
+        # 3) Exchange for tokens (async)
+        tokens = await self._exchange_code_async(
+            code,
+            authorize,
+            cache_session=cache_session,
+        )
+
+        # 4) Emit final token
+        yield tokens
+        return
+
     @override
     def refresh(
         self,
@@ -105,3 +172,18 @@ class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
         # @breaking:    >=0.2.0 no longer includes the return type from the generator.
         #               this is due to wanting more consistency with the async protocol
         return None
+
+    # NEW: async refresh passthrough
+    @override
+    async def refresh_async(
+        self,
+        request: RefreshTokenRequest,
+        *,
+        cache_session: CacheAsyncSession | None = None,
+    ) -> AsyncGenerator[OAuth2Token, None]:
+        tokens = await self.oauth2_client.refresh_async(
+            request,
+            cache_session=cache_session,
+        )
+        yield tokens
+        return
