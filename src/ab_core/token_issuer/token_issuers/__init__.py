@@ -7,10 +7,6 @@ from .pkce import PKCEOAuth2TokenIssuer
 from .template import TemplateTokenIssuer
 
 TokenIssuer = Annotated[
-    Union[
-        PKCEOAuth2TokenIssuer,
-        OAuth2TokenIssuer,
-        TemplateTokenIssuer,
-    ],
+    PKCEOAuth2TokenIssuer | OAuth2TokenIssuer | TemplateTokenIssuer,
     Discriminator("type"),
 ]

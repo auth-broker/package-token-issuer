@@ -19,9 +19,7 @@ class PKCEOAuth2TokenIssuer(OAuth2TokenIssuerBase):
     oauth2_client: PKCEOAuth2Client
 
     @override
-    def _build_authorize(
-        self, *, cache_session: CacheSession | None = None
-    ) -> PKCEAuthorizeResponse:
+    def _build_authorize(self, *, cache_session: CacheSession | None = None) -> PKCEAuthorizeResponse:
         req = PKCEBuildAuthorizeRequest(
             scope=self.scope,
             response_type=self.response_type,

@@ -16,9 +16,7 @@ class OAuth2TokenIssuer(OAuth2TokenIssuerBase):
     type: Literal[TokenIssuerType.OAUTH2] = TokenIssuerType.OAUTH2
 
     @override
-    def _build_authorize(
-        self, *, cache_session: CacheSession | None = None
-    ) -> OAuth2AuthorizeResponse:
+    def _build_authorize(self, *, cache_session: CacheSession | None = None) -> OAuth2AuthorizeResponse:
         req = OAuth2BuildAuthorizeRequest(
             scope=self.scope,
             response_type=self.response_type,
