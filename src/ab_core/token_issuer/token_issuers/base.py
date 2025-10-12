@@ -69,8 +69,9 @@ class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
         )
 
         # 2) Drive the login flow
-        auth_code_stage = yield from self.oauth2_flow.get_code(str(authorize.url))
-        code = auth_code_stage.auth_code
+        for stage in self.oauth2_flow.get_code(str(authorize.url)):
+            yield stage
+        code = stage.auth_code  # last stage is DONE
 
         # 3) Exchange for tokens
         tokens = self._exchange_code(
