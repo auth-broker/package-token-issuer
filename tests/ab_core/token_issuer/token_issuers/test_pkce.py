@@ -17,19 +17,17 @@ from ab_core.token_issuer.token_issuers.pkce import (
 
 
 def test_wemoney_authenticate(tmp_cache_sync_session):
-    wemoney_config = OIDCConfig(
-        client_id="247ffs2l6um22baifm5o7nhkgh",
-        redirect_uri="https://app.wemoney.com.au/oauth_redirect",
-        authorize_url="https://wemoney.auth.ap-southeast-2.amazoncognito.com/oauth2/authorize",
-        token_url="https://wemoney.auth.ap-southeast-2.amazoncognito.com/oauth2/token",
-    )
-
     issuer = PKCEOAuth2TokenIssuer(
         identity_provider = "Google",
         response_type = "code",
         scope = "openid email profile",
         oauth2_client=PKCEOAuth2Client(
-            config=wemoney_config,
+            config=OIDCConfig(
+                client_id="247ffs2l6um22baifm5o7nhkgh",
+                redirect_uri="https://app.wemoney.com.au/oauth_redirect",
+                authorize_url="https://wemoney.auth.ap-southeast-2.amazoncognito.com/oauth2/authorize",
+                token_url="https://wemoney.auth.ap-southeast-2.amazoncognito.com/oauth2/token",
+            ),
         ),
         oauth2_flow=ImpersonationOAuth2Flow(
             idp_prefix="https://wemoney.auth.ap-southeast-2.amazoncognito.com/oauth2/idpresponse",
