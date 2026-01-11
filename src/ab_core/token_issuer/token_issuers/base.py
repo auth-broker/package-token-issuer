@@ -106,7 +106,7 @@ class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
         # 2) Drive the login flow
         for stage in self.oauth2_flow.get_code(str(authorize.url)):
             yield stage
-        code = stage.auth_code  # last stage is DONE
+        code = stage.auth_code.get_secret_value()  # last stage is DONE
 
         # 3) Exchange for tokens
         tokens = self._exchange_code(
@@ -140,7 +140,7 @@ class OAuth2TokenIssuerBase(TokenIssuerBase[OAuth2Token], ABC):
         if last_stage is None or not hasattr(last_stage, "auth_code"):
             raise RuntimeError("OAuth2 flow did not yield an auth code stage")
 
-        code = last_stage.auth_code  # type: ignore[attr-defined]
+        code = last_stage.auth_code.get_secret_value()  # type: ignore[attr-defined]
 
         # 3) Exchange for tokens (async)
         tokens = await self._exchange_code_async(
